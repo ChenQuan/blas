@@ -90,6 +90,7 @@ func IsInf(f float32, sign int) bool {
 	// To avoid the floating-point hardware, could use:
 	//	x := math.Float32bits(f);
 	//	return sign >= 0 && x == uinf || sign <= 0 && x == uneginf;
+	math.IsInf()
 	return sign >= 0 && f > math.MaxFloat32 || sign <= 0 && f < -math.MaxFloat32
 }
 
