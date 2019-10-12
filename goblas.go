@@ -76,13 +76,22 @@ For Hermitian matrices, trans = Trans is not allowed.
 For complex symmetric matrices, trans = ConjTrans is not allowed.
 */
 const (
-	zeroIncX  = ""
-	badX      = ""
-	negativeN = ""
-	zeroIncY  = ""
-	badY      = ""
-	badLenX   = ""
-	badLenY   = ""
+	zeroIncX     = ""
+	badX         = ""
+	negativeN    = ""
+	zeroIncY     = ""
+	badY         = ""
+	badLenX      = ""
+	badLenY      = ""
+	mLT0         = ""
+	nLT0         = ""
+	badLdA       = ""
+	shortX       = ""
+	shortY       = ""
+	shortA       = ""
+	badTranspose = ""
+	kLLT0        = ""
+	kULT0        = ""
 )
 
 // Flag constants indicate Givens transformation H matrix state.

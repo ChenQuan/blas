@@ -104,3 +104,17 @@ func IsNaN(f float32) (is bool) {
 
 // NaN returns an IEEE 754 ``not-a-number'' value.
 func NaN() float32 { return math.Float32frombits(unan) }
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a > b {
+		return b
+	}
+	return a
+}
