@@ -122,7 +122,7 @@ func Dasum(N int, x []float64, incX int) float64 {
 	}
 	for i := 0; i < N; i++ {
 		wg.Add(1)
-		go func(v int) {
+		go func(i int) {
 			defer wg.Done()
 			sum += math.Abs(x[i*incX])
 		}(i)
