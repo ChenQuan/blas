@@ -1,8 +1,6 @@
 package goblas
 
 import (
-	"fmt"
-	"math"
 	"testing"
 )
 
