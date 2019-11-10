@@ -354,7 +354,7 @@ func Strmv(ul Uplo, tA Transpose, d Diag, n int, a []float32, lda int, x []float
 	if (incX > 0 && len(x) <= (n-1)*incX) || (incX < 0 && len(x) <= (1-n)*incX) {
 		panic(shortX)
 	}
-
+	// Whether it is an identity matrix
 	nonUnit := d != Unit
 	if n == 1 {
 		if nonUnit {
@@ -366,23 +366,75 @@ func Strmv(ul Uplo, tA Transpose, d Diag, n int, a []float32, lda int, x []float
 	if incX <= 0 {
 		kx = -(n - 1) * incX
 	}
+
+	var wg sync.WaitGroup
+
 	if tA == NoTrans {
 		if ul == Upper {
 			if incX == 1 {
 				for i := 0; i < n; i++ {
-					ilda := i * lda
-					var tmp float32
-					if nonUnit {
-						tmp = a[ilda+i] * x[i]
-					} else {
-						tmp = x[i]
-					}
-					x[i] = tmp + DotUnitary(a[ilda+i+1:ilda+n], x[i+1:n])
+					wg.Add(1)
+					go func(i int) {
+						defer wg.Done()
+						ilda := i * lda
+						var tmp float32
+						// 是否是单位矩阵
+
+						if nonUnit {
+							tmp = a[ilda+i] * x[i]
+						} else {
+							tmp = x[i]
+						}
+						x[i] = tmp + DotUnitary(a[ilda+i+1:ilda+n], x[i+1:n])
+					}(i)
 				}
+				wg.Wait()
 				return
 			}
 			ix := kx
 			for i := 0; i < n; i++ {
+				wg.Add(1)
+				go func(ix int) {
+					defer wg.Done()
+					ilda := i * lda
+					var tmp float32
+					if nonUnit {
+						tmp = a[ilda+i] * x[ix]
+					} else {
+						tmp = x[ix]
+					}
+					x[ix] = tmp + DotInc(x, a[ilda+i+1:ilda+n], n-i-1, 1, incX, 0, ix+incX)
+				}(ix)
+
+				ix += incX
+			}
+			wg.Wait()
+			return
+		}
+		if incX == 1 {
+			for i := n - 1; i >= 0; i-- {
+				wg.Add(1)
+				go func(i int) {
+					defer wg.Done()
+					ilda := i * lda
+					var tmp float32
+					if nonUnit {
+						tmp += a[ilda+i] * x[i]
+					} else {
+						tmp = x[i]
+					}
+					x[i] = tmp + DotUnitary(a[ilda:ilda+i], x[:i])
+				}(i)
+
+			}
+			wg.Wait()
+			return
+		}
+		ix := kx + (n-1)*incX
+		for i := n - 1; i >= 0; i-- {
+			wg.Add(1)
+			go func(ix int) {
+				defer wg.Done()
 				ilda := i * lda
 				var tmp float32
 				if nonUnit {
@@ -390,40 +442,16 @@ func Strmv(ul Uplo, tA Transpose, d Diag, n int, a []float32, lda int, x []float
 				} else {
 					tmp = x[ix]
 				}
-				x[ix] = tmp + f32.DotInc(x, a[ilda+i+1:ilda+n], uintptr(n-i-1), uintptr(incX), 1, uintptr(ix+incX), 0)
-				ix += incX
-			}
-			return
-		}
-		if incX == 1 {
-			for i := n - 1; i >= 0; i-- {
-				ilda := i * lda
-				var tmp float32
-				if nonUnit {
-					tmp += a[ilda+i] * x[i]
-				} else {
-					tmp = x[i]
-				}
-				x[i] = tmp + f32.DotUnitary(a[ilda:ilda+i], x[:i])
-			}
-			return
-		}
-		ix := kx + (n-1)*incX
-		for i := n - 1; i >= 0; i-- {
-			ilda := i * lda
-			var tmp float32
-			if nonUnit {
-				tmp = a[ilda+i] * x[ix]
-			} else {
-				tmp = x[ix]
-			}
-			x[ix] = tmp + f32.DotInc(x, a[ilda:ilda+i], uintptr(i), uintptr(incX), 1, uintptr(kx), 0)
+				x[ix] = tmp + DotInc(x, a[ilda:ilda+i], i, 1, incX, 0, kx)
+			}(ix)
 			ix -= incX
 		}
+		wg.Wait()
 		return
 	}
 	// Cases where a is transposed.
-	if ul == blas.Upper {
+	//TODO:以下代码均未完成
+	if ul == Upper {
 		if incX == 1 {
 			for i := n - 1; i >= 0; i-- {
 				ilda := i * lda

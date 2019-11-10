@@ -123,6 +123,7 @@ func min(a, b int) int {
 }
 
 // x.dot(y)
+// x and y are vectors
 func DotUnitary(x, y []float32) (sum float32) {
 	var wg sync.WaitGroup
 
@@ -132,6 +133,20 @@ func DotUnitary(x, y []float32) (sum float32) {
 			defer wg.Done()
 			sum += (v) * (y[i])
 		}(i, v)
+	}
+	wg.Wait()
+	return
+}
+func DotInc(x, y []float32, N, ix, incX, iy, incY int) (sum float32) {
+	var wg sync.WaitGroup
+	for i := 0; i < N; i++ {
+		wg.Add(1)
+		go func(ix, iy int) {
+			defer wg.Done()
+			sum += (x[ix]) * (y[iy])
+		}(ix, iy)
+		ix += incX
+		iy += incY
 	}
 	wg.Wait()
 	return

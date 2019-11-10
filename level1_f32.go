@@ -539,9 +539,10 @@ func Srot(n int, x []float32, incX int, y []float32, incY int, c float32, s floa
 	if (incY > 0 && (n-1)*incY >= len(y)) || (incY < 0 && (1-n)*incY >= len(y)) {
 		panic(badY)
 	}
+	var wg sync.WaitGroup
+
 	if incX == 1 && incY == 1 {
 		x = x[:n]
-		var wg sync.WaitGroup
 
 		for i, vx := range x {
 			wg.Add(1)
@@ -561,7 +562,6 @@ func Srot(n int, x []float32, incX int, y []float32, incY int, c float32, s floa
 	if incY < 0 {
 		iy = (-n + 1) * incY
 	}
-	var wg sync.WaitGroup
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func(ix, iy int) {
@@ -777,10 +777,10 @@ func Dsdot(N int, x []float32, incX int, y []float32, incY int) float64 {
 	}
 	for i := 0; i < N; i++ {
 		wg.Add(1)
-		go func() {
+		go func(ix, iy int) {
 			defer wg.Done()
 			sum += float64(x[ix]) * float64(y[iy])
-		}()
+		}(ix, iy)
 		ix += incX
 		iy += incY
 	}
@@ -818,7 +818,7 @@ func Sdot(N int, x []float32, incX int, y []float32, incY int) float32 {
 			wg.Add(1)
 			go func(i int, v float32) {
 				defer wg.Done()
-				sum += (v) * (y[i])
+				sum += v * y[i]
 			}(i, v)
 		}
 		wg.Wait()
@@ -839,10 +839,10 @@ func Sdot(N int, x []float32, incX int, y []float32, incY int) float32 {
 	}
 	for i := 0; i < N; i++ {
 		wg.Add(1)
-		go func() {
+		go func(ix, iy int) {
 			defer wg.Done()
-			sum += (x[ix]) * (y[iy])
-		}()
+			sum += x[ix] * y[iy]
+		}(ix, iy)
 		ix += incX
 		iy += incY
 	}
@@ -880,7 +880,7 @@ func Sdsdot(N int, alpha float32, x []float32, incX int, y []float32, incY int) 
 			wg.Add(1)
 			go func(i int, v float32) {
 				defer wg.Done()
-				sum += (v) * (y[i])
+				sum += v * y[i]
 			}(i, v)
 		}
 		wg.Wait()
@@ -903,10 +903,10 @@ func Sdsdot(N int, alpha float32, x []float32, incX int, y []float32, incY int) 
 
 	for i := 0; i < N; i++ {
 		wg.Add(1)
-		go func() {
+		go func(ix, iy int) {
 			defer wg.Done()
-			sum += (x[ix]) * (y[iy])
-		}()
+			sum += x[ix] * y[iy]
+		}(ix, iy)
 		ix += incX
 		iy += incY
 	}
