@@ -92,6 +92,8 @@ const (
 	badTranspose = ""
 	kLLT0        = ""
 	kULT0        = ""
+	badUplo      = ""
+	badDiag      = ""
 )
 
 // Flag constants indicate Givens transformation H matrix state.

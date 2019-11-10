@@ -10,7 +10,7 @@ import (
 // Dnrm2 computes the Euclidean norm of a vector,
 //  sqrt(\sum_i x[i] * x[i]).
 // This function returns 0 if incX is negative.
-// 未完成，有问题
+// TODO:未完成，有问题
 func Dnrm2(N int, x []float64, incX int) float64 {
 	if incX < 1 {
 		if incX == 0 {
@@ -134,6 +134,7 @@ func Dasum(N int, x []float64, incX int) float64 {
 // Idamax returns the index of an element of x with the largest absolute value.
 // If there are multiple such indices the earliest is returned.
 // Idamax returns -1 if n == 0.
+// TODO:暂未完成
 func Idamax(N int, x []float64, incX int) int {
 	if incX < 1 {
 		if incX == 0 {

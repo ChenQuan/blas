@@ -1,6 +1,9 @@
 package goblas
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 const (
 	unan    = 0x7fc00000
@@ -117,4 +120,19 @@ func min(a, b int) int {
 		return b
 	}
 	return a
+}
+
+// x.dot(y)
+func DotUnitary(x, y []float32) (sum float32) {
+	var wg sync.WaitGroup
+
+	for i, v := range x {
+		wg.Add(1)
+		go func(i int, v float32) {
+			defer wg.Done()
+			sum += (v) * (y[i])
+		}(i, v)
+	}
+	wg.Wait()
+	return
 }
