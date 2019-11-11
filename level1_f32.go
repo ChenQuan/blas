@@ -36,7 +36,9 @@ func Snrm2(N int, x []float32, incX int) float32 {
 	if incX == 1 {
 		x = x[:N]
 		var wg sync.WaitGroup
-		for _, v := range x {
+
+		for i := 0; i < len(x); i++ {
+			v := x[i]
 			if v == 0 {
 				continue
 			}
@@ -49,7 +51,6 @@ func Snrm2(N int, x []float32, incX int) float32 {
 				absx := Abs(v)
 				sum += absx * absx
 			}(v)
-
 		}
 		wg.Wait()
 

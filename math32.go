@@ -151,3 +151,6 @@ func DotInc(x, y []float32, N, ix, incX, iy, incY int) (sum float32) {
 	wg.Wait()
 	return
 }
+func ScalUnitary(beta, y []float32) {
+
+}
